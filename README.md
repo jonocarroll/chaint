@@ -43,7 +43,7 @@ Often we are interested in what is happening in the middle of this chain, or wou
 
 ``` r
 %T>% <- function(lhs, rhs) {
-  eval(rhs)
+  do.call(rhs, lhs)
   return(lhs)
 }
 ```
@@ -58,7 +58,7 @@ This is useful for passing data to the `rhs` function which has side effects and
 -   can be conditional on the data,
 -   can take arguments to be passed on to the `rhs` function.
 
-This is primarily intended for interactive use, not for programming with, as it it used for the side effects of printing to console.
+This is primarily intended for interactive use, not for programming with, as it it used for the side effect of printing to console.
 
 Example usage:
 --------------
@@ -66,10 +66,9 @@ Example usage:
 To add a simple message (maybe a checkpoint flag or a notification about the processing), use `say` with a quoted message:
 
 ``` r
-library(chaint)
 mtcars %>% 
    group_by(cyl) %>% 
-   say("caution, grouped data!") %>% 
+   chaint::say("caution, grouped data!") %>% 
    summarise(meanMPG = mean(mpg))
 #> caution, grouped data!
 #> Source: local data frame [3 x 2]
@@ -81,14 +80,13 @@ mtcars %>%
 #> 3     8 15.10000
 ```
 
-The `tee` function prints a message and applies a function the incomming data (with optional arguments) then transparently returns the incomming data to allow the chain to continue, allowing inspection of the intermediate data. No commenting out of lines.
+The `tee` function prints a message and applies a function to the incomming data (with optional arguments) then transparently returns the incomming data to allow the chain to continue, allowing inspection of the intermediate data. No commenting out of lines.
 
 ``` r
-library(chaint)
 mtcars %>%
-  tee("checkpoint 1", head, n=10) %>%
+  chaint::tee("checkpoint 1", head, n=10) %>%
   filter(cyl < 6) %>%
-  tee("checkpoint 2", head, n=3) %>%
+  chaint::tee("checkpoint 2", head, n=3) %>%
   summarise(meanMPG = mean(mpg))
 #> checkpoint 1
 #>                    mpg cyl  disp  hp drat    wt  qsec vs am gear carb
